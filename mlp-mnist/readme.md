@@ -10,6 +10,7 @@ An implementation of a two-layer dense feedforward neural network written in C u
 ├── operations.h / operations.c # Matrix multiplication, element-wise arithmetic, transpose, apply
 ├── activation.h / activation.c # Scalar sigmoid, post-activation derivative, stabilized softmax
 ├── img.h / img.c               # CSV parser and 28x28 image lifecycle management
+├── export.h / export.c         # Results export handler
 ├── network.h / network.c       # Network state, forward/backward passes, serialization, exports
 ├── main.c                      # Training loop, learning rate schedule, evaluation driver
 ├── mnist_train.csv             # Training dataset (10,000 rows loaded)
