@@ -76,9 +76,9 @@ typedef struct {
 * Token index `0` is converted via `atoi` and assigned to `img->label`.
 * Token indices `1` through `784` are mapped onto the $28 \times 28$ matrix using integer division and modulo arithmetic:
 
-  $$
-  \text{row} = \left\lfloor \frac{j - 1}{28} \right\rfloor, \qquad \text{col} = (j - 1) \bmod 28
-  $$
+$$
+\text{row} = \left\lfloor \frac{j - 1}{28} \right\rfloor, \qquad \text{col} = (j - 1) \bmod 28
+$$
 
 * Raw integer pixel intensities in $[0, 255]$ are divided by `255.0` to normalize inputs into $[0.0, 1.0]$.
 
@@ -105,9 +105,9 @@ $$
 * **Training (`network_train`):** Execution stops at $A_2$ to compute the error against the one-hot target vector.
 * **Inference (`network_predict`):** $A_2$ is passed through `softmax`. To prevent `exp()` overflow, `softmax` first finds $m = \max_{i}(A_{2,i})$ and computes:
 
-  $$
-  P(y = i \mid X) = \frac{e^{A_{2,i} - m}}{\sum_{k=0}^{9} e^{A_{2,k} - m}}
-  $$
+$$
+P(y = i \mid X) = \frac{e^{A_{2,i} - m}}{\sum_{k=0}^{9} e^{A_{2,k} - m}}
+$$
 
   `mtx_argmax` then scans the $10 \times 1$ probability vector and returns the row index with the maximum value.
 
@@ -117,36 +117,36 @@ $$
 
 1. **Output Error and Local Gradient:**
 
-   $$
-   e_{\text{out}} = Y - A_2
-   $$
+$$
+e_{\text{out}} = Y - A_2
+$$
 
-   `sigmoidPrime(A_2)` computes $\sigma'(Z_2) = A_2 \odot (1 - A_2)$ directly from the cached post-activation matrix $A_2$, avoiding redundant `exp()` evaluations:
+`sigmoidPrime(A_2)` computes $\sigma'(Z_2) = A_2 \odot (1 - A_2)$ directly from the cached post-activation matrix $A_2$, avoiding redundant `exp()` evaluations:
 
-   $$
-   \delta_{\text{out}} = e_{\text{out}} \odot \big(A_2 \odot (1 - A_2)\big) \in \mathbb{R}^{10 \times 1}
-   $$
+$$
+\delta_{\text{out}} = e_{\text{out}} \odot \big(A_2 \odot (1 - A_2)\big) \in \mathbb{R}^{10 \times 1}
+$$
 
 2. **Hidden Error and Local Gradient:**
 
-   $$
-   e_{\text{hidden}} = W_{\text{output}}^T \cdot \delta_{\text{out}} \in \mathbb{R}^{300 \times 1}
-   $$
+$$
+e_{\text{hidden}} = W_{\text{output}}^T \cdot \delta_{\text{out}} \in \mathbb{R}^{300 \times 1}
+$$
 
-   $$
-   \delta_{\text{hidden}} = e_{\text{hidden}} \odot \big(A_1 \odot (1 - A_1)\big) \in \mathbb{R}^{300 \times 1}
-   $$
+$$
+\delta_{\text{hidden}} = e_{\text{hidden}} \odot \big(A_1 \odot (1 - A_1)\big) \in \mathbb{R}^{300 \times 1}
+$$
 
 3. **Parameter Update:**
    Outer products of the local gradients and transposed layer inputs yield the weight deltas, scaled by learning rate $\eta$:
 
-   $$
-   W_{\text{output}} \leftarrow W_{\text{output}} + \eta \big(\delta_{\text{out}} \cdot A_1^T\big)
-   $$
+$$
+W_{\text{output}} \leftarrow W_{\text{output}} + \eta \big(\delta_{\text{out}} \cdot A_1^T\big)
+$$
 
-   $$
-   W_{\text{hidden}} \leftarrow W_{\text{hidden}} + \eta \big(\delta_{\text{hidden}} \cdot X^T\big)
-   $$
+$$
+W_{\text{hidden}} \leftarrow W_{\text{hidden}} + \eta \big(\delta_{\text{hidden}} \cdot X^T\big)
+$$
 
    Each weight update allocates a new weight matrix, frees the previous weight matrix pointer, and reassigns `net->output_weights` and `net->hidden_weights`. A single call to `network_train` performs 18 intermediate `Matrix*` allocations and 18 corresponding `mtx_free` calls.
 
